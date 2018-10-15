@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Color Deep</title>
+    <style>
+        .item{
+            width: 200px;
+            display: inline-block;
+            margin:4px;
+            text-align: center;
+            border:1px solid #999;
+        }
+        .color{
+            height: 50px;
+            border-bottom: 1px solid #999;
+        }
+    </style>
+</head>
+
+<body>
+    <h4>计算</h4>
+    <b>根据公司ui的理解颜色加深指的是颜色上面加一个半透明的遮罩以后肉眼看到的颜色,
+        而不是saas中函数darken(color,.3)这样的颜色加深
+        比如加深0.3,那么颜色遮罩的透明度为0.3。
+    </b>
+    <form id="form">
+        加深:<input name="deep" value="0.3" />
+        <input type="submit" />
+    </form>
+    <h4>源色1</h4>
+    <div id="origin1" class="container"></div>
+    <h4>加深</h4>
+    <div id="deep1" class="container"></div>
+    <h4>源色2</h4>
+    <div id="origin2" class="container"></div>
+    <h4>加深</h4>
+    <div id="deep2" class="container"></div>
+    <script>
+        document.querySelector("#form").addEventListener("submit", function (e) {
+            e.preventDefault();
+            var deep = this.deep.value;
+            deep1.innerHTML = "";
+            deep2.innerHTML = "";
+            generateColorDeep(colors1, deep);
+            generateColorDeep(colors2, deep);
+            colors1.forEach(color => {
+                deep1.appendChild(generateDom(color.name, color._deepcolor));
+            });
+            colors2.forEach(color => {
+                deep2.appendChild(generateDom(color.name, color._deepcolor));
+            });
+        });
+        const colors1 = [{ name: "$color1", value: "#ff8c42" },
+        { name: "$color2", value: "#00b7ac" },
+        { name: "$color3", value: "#FF5656" },
+        { name: "$color4", value: "#f9c069" },
+        { name: "$color5", value: "#00b246" },
+        { name: "$color6", value: "#A485F0" },
+        { name: "$color7", value: "#333333" },
+        { name: "$color8", value: "#666666" },
+        { name: "$color9", value: "#000000" },
+        { name: "$color10", value: "#bbbbbb" },
+        { name: "$color11", value: "#dddddd" },
+        { name: "$color12", value: "#f0f0f0" },
+        { name: "$color13", value: "#f2f4f6" },
+        { name: "$color14", value: "#FFFFFF" }];
+        const colors2 = [{ name: "$color1", value: "#68A6F6" },
+        { name: "$color2", value: "#38D5B0" },
+        { name: "$color3", value: "#FF948F" },
+        { name: "$color4", value: "#F4CE65" },
+        { name: "$color5", value: "#58C8D0" },
+        { name: "$color6", value: "#BBA3F6" },
+        { name: "$color7", value: "#333333" },
+        { name: "$color8", value: "#666666" },
+        { name: "$color9", value: "#000000" },
+        { name: "$color10", value: "#bbbbbb" },
+        { name: "$color11", value: "#dddddd" },
+        { name: "$color12", value: "#E6EAF4" },
+        { name: "$color13", value: "#F5F7FA" },
+        { name: "$color14", value: "#FFFFFF" }];
+        const origin1 = document.querySelector("#origin1");
+        const deep1 = document.querySelector("#deep1");
+        const origin2 = document.querySelector("#origin2");
+        const deep2 = document.querySelector("#deep2");
+        colors1.forEach(color => {
+            origin1.appendChild(generateDom(color.name, color.value));
+        });
+        colors2.forEach(color => {
+            origin2.appendChild(generateDom(color.name, color.value));
+        });
+        function generateDom(name, value) {
+            const item = document.createElement("div");
+            item.classList.add("item");
+            const color = document.createElement("div");
+            color.classList.add("color");
+            color.style.backgroundColor = value;
+            item.appendChild(color);
+
+            const valueItem = document.createElement("div");
+            valueItem.classList.add("value");
+            valueItem.innerHTML = value;
+            item.appendChild(valueItem);
+
+            const label = document.createElement("div");
+            label.classList.add("label");
+            label.innerHTML = name;
+            item.appendChild(label);
+            return item;
+        }
+        function generateColorDeep(colors, amount) {
+            colors.forEach(color => {
+                const { r, g, b } = colorDeep(color.value, amount);
+                color._deepcolor = `#${formatNumber(new Number(r).toString(16))}${formatNumber(new Number(g).toString(16))}${formatNumber(new Number(b).toString(16))}`;
+            });
+        }
+        function colorDeep(color, amount) {
+            const canvas = document.createElement("canvas");
+            canvas.width = 1;
+            canvas.height = 1;
+            const ctx = canvas.getContext("2d");
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, 1, 1);
+            ctx.fillStyle = `rgba(0,0,0,${amount})`;
+            ctx.fillRect(0, 0, 1, 1);
+            const imgData = ctx.getImageData(0, 0, 1, 1);
+            const data = imgData.data;
+            const r = data[0],
+                g = data[1],
+                b = data[2],
+                a = data[3] / 255;
+            ctx.clearRect(0, 0, 1, 1);
+            return { r, g, b };
+        }
+        function formatNumber(value) {
+            return value.length < 2 ? "0" + value : value;
+        } 
+    </script>
+</body>
+
+</html>
